@@ -1,0 +1,31 @@
+#name: Run Load Test with Artillery
+
+on:
+  workflow_dispatch:   # Allows manual trigger
+  push:
+    branches:
+      - main
+
+jobs:
+  load-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Artillery
+        run: npm install -g artillery
+
+      - name: Run Artillery test
+        run: artillery run test.yml --output results.json
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: artillery-results
+          path: results.json
