@@ -1,4 +1,4 @@
-#name: Run Load Test with Artillery
+name: Run Load Test with Artillery
 
 on:
   workflow_dispatch:   # Allows manual trigger
