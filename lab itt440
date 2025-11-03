@@ -1,0 +1,174 @@
+# 🧪 Website Stress Testing Using Artillery on Linux
+
+## 1. Introduction: Stress Testing
+
+Stress testing is a type of performance testing used to evaluate how a website or web application behaves under extreme conditions such as heavy traffic, limited server resources, or unexpected spikes in requests.
+The goal is to determine the **maximum capacity**, **stability**, and **reliability** of the system before it goes live.
+
+By conducting stress tests, developers can:
+
+* Identify **bottlenecks** and performance limits.
+* Improve **server configurations** and **code efficiency**.
+* Ensure the system remains **stable and responsive** under high load.
+
+---
+
+## 2. Tool Used: Artillery (on Linux)
+
+**Artillery** is a modern, open-source load testing tool used to simulate real-world traffic for APIs, websites, and backend systems.
+It is written in Node.js and can generate a large number of HTTP, WebSocket, or Socket.io requests efficiently.
+
+### 3. Features of Artillery
+
+| Feature                       | Description                                          |
+| ----------------------------- | ---------------------------------------------------- |
+| 🧩 **Scenario-based testing** | Define multiple user flows using YAML or JSON files. |
+| 🚀 **High scalability**       | Can generate thousands of virtual users.             |
+| 📊 **Detailed reports**       | Provides JSON or HTML summaries of test results.     |
+| ⚙️ **Protocol support**       | Supports HTTP, HTTPS, WebSocket, and Socket.io.      |
+| ⏱ **Custom timings**          | Control request rates, delays, and durations.        |
+| 🧠 **Integration ready**      | Works with CI/CD pipelines and cloud testing.        |
+
+---
+
+## 4. Target Website
+
+The test targeted a **PokeAPI user journey** to measure performance and response stability under different levels of simulated user traffic.
+This helps evaluate:
+
+* **Response time (latency)**
+* **Requests per second (RPS)**
+* **Error rate under load**
+
+---
+
+# 🚀 Artillery Stress Test Report
+
+## 🧩 1. Test Overview
+
+| Detail             | Description                                                  |
+| ------------------ | ------------------------------------------------------------ |
+| 🧰 **Tool Used**   | Artillery.io                                                 |
+| 💻 **Command**     | `npx artillery run stress-test.yml --output results.json`    |
+| ⏱️ **Duration**    | ~4 minutes 35 seconds                                        |
+| 🎯 **Target API**  | PokeAPI user journey                                         |
+| ⚙️ **Test Phases** | Warm-up (60s), Sustained (120s), Spike (30s), Cooldown (60s) |
+
+> 🧠 **Purpose:** To evaluate how well the API performs under different levels of traffic — from light use to full overload.
+
+---
+
+## 📊 2. Overall Performance Summary
+
+| Metric                                | Result     | Meaning                                         |
+| ------------------------------------- | ---------- | ----------------------------------------------- |
+| 🌐 **Total Requests**                 | 7,458      | All HTTP requests made during the test          |
+| ✅ **Successful Responses (HTTP 200)** | 6,664      | Server handled most requests successfully       |
+| ⚠️ **Failed Requests (Timeouts)**     | 794        | Requests that didn’t finish before timeout      |
+| ⚡ **Average Request Rate**            | 27 req/sec | Throughput rate achieved overall                |
+| 🕒 **Response Time (Mean)**           | 306 ms     | Average delay per request                       |
+| 🔹 **Median Response Time**           | 128 ms     | Half of all requests completed faster than this |
+| 🔺 **95th Percentile (p95)**          | 1,176 ms   | 95% of requests were faster than this value     |
+| 🔻 **99th Percentile (p99)**          | 3,012 ms   | Slowest 1% under heavy load                     |
+| 🚨 **Max Response Time**              | 6,025 ms   | Longest delay recorded                          |
+| 👥 **Virtual Users Completed**        | 1,666      | Users that completed their session successfully |
+| 🧑‍💻 **Total Virtual Users**         | 2,460      | Total simulated users                           |
+| ❌ **Failed Virtual Users**            | 794        | Users that timed out or crashed                 |
+
+> 🧾 **Summary:** 89% of requests were successful. Server handled moderate load well but degraded at higher concurrency.
+
+---
+
+## 🔍 3. Phase-by-Phase Breakdown
+
+### 🌱 **Phase 1: Warm-up (0–60s)**
+
+* **Average Response Time:** ~96 ms
+* **Throughput:** 29 req/sec
+* **Failures:** 0
+* 🟢 **Status:** Stable and smooth. Server handled initial traffic perfectly.
+
+### 🔥 **Phase 2: Sustained Load (60–180s)**
+
+* **Response Times:** Rose from ~112 ms → ~1752 ms
+* **Timeouts:** Began appearing (ETIMEDOUT errors) after 23:08:00
+* **Observation:** Server began slowing down under continuous high load. Latency spikes visible.
+
+### ⚡ **Phase 3: Spike Load (180–210s)**
+
+* **User Surge:** Rapid jump in simulated users.
+* **Peak Throughput:** 76 req/sec
+* **Mean Response Time:** 166 ms
+* **Timeouts:** 69–79 in each interval
+* 🔴 **Observation:** Server hit its limit — requests piled up and timeouts increased.
+
+### 🧊 **Phase 4: Cooldown (210–270s)**
+
+* **Response Time:** Returned to 78–83 ms
+* **Failures:** 0
+* 🟢 **Observation:** Server recovered quickly as traffic dropped back to normal.
+
+---
+
+## 📈 4. Quick Visual Summary
+
+| Phase        | Avg Req/sec | Avg Resp. Time (ms) | Failures | System Status |
+| ------------ | ----------- | ------------------- | -------- | ------------- |
+| 🌱 Warm-up   | 29          | 96                  | 0        | ✅ Stable      |
+| 🔥 Sustained | 25–33       | 872–1752            | 7–91     | ⚠️ Struggling |
+| ⚡ Spike      | 43–76       | 166                 | 69–79    | 🔴 Overloaded |
+| 🧊 Cooldown  | 20          | 79                  | 0        | ✅ Recovered   |
+
+> 📊 The test clearly shows how system performance drops during the spike, but quickly stabilizes afterward.
+
+---
+
+## 💡 5. Insights & Findings
+
+✅ **Server Strengths:**
+
+* Managed steady traffic up to **27 req/sec** with excellent stability.
+* Rapid recovery after overload shows **good resilience and restart handling**.
+
+⚠️ **Weaknesses:**
+
+* Response time spiked drastically when user load exceeded ~120 concurrent users.
+* Timeout errors (794 total) indicate **API throttling or backend bottlenecks**.
+
+💬 **User Impact:** During high stress, users would experience slow or failed responses, but under normal usage the system is fast and reliable.
+
+---
+
+## 🧠 6. Conclusion
+
+The API **performed efficiently under moderate load**, but struggled as concurrency peaked. Once traffic normalized, the system quickly stabilized — suggesting robust but limited scalability.
+
+**In short:**
+
+> ⚙️ Great performance at low to medium load, 🚧 but limited under extreme stress.
+
+**Performance Thresholds:**
+
+* 🟢 Up to ~30 req/sec → Smooth performance
+* 🟡 30–60 req/sec → Latency increases noticeably
+* 🔴 Beyond 60 req/sec → Timeouts and degradation occur
+
+---
+
+## 🧰 7. Recommendations
+
+| Area                         | Suggestion                                                         |
+| ---------------------------- | ------------------------------------------------------------------ |
+| 🖥️ **Server Configuration** | Increase thread/concurrency limits, tune timeout values.           |
+| 💾 **Backend Optimization**  | Implement caching (Redis, memory cache) for frequent API requests. |
+| ⚖️ **Load Balancing**        | Use horizontal scaling with multiple servers or containers.        |
+| 📊 **Monitoring**            | Integrate Grafana/Prometheus dashboards for real-time metrics.     |
+| 🔍 **Error Handling**        | Add retry logic for ETIMEDOUT scenarios.                           |
+
+---
+
+## 🌟 8. Final Thoughts
+
+This stress test reveals that your system can handle typical workloads confidently but needs **scaling strategies** for high-traffic scenarios. With a few optimizations, the API can achieve enterprise-grade performance.
+
+> 🎯 **Summary Tagline:** “Stable under pressure, but needs reinforcements for the storm.”
